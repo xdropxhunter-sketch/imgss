@@ -177,7 +177,7 @@ export default function HomePage() {
       });
       xhr.send(fd);
       const data = await respPromise;
-      const fullUrl = `${window.location.origin}/share/${data.id}`;
+      const fullUrl = `${window.location.origin}/api/file/${data.id}`;
       setResult({ ...data, fullUrl });
       toast.success('Uploaded. Link valid for 5 minutes.');
     } catch (e) {
@@ -403,7 +403,7 @@ export default function HomePage() {
                 rel="noreferrer"
                 className="flex-1 rounded-xl neu-btn px-5 py-3 text-sm font-semibold inline-flex items-center justify-center"
               >
-                Open share page
+                Open in new tab
               </a>
             </div>
           </div>

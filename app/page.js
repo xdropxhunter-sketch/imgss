@@ -152,7 +152,7 @@ export default function HomePage() {
     setResult(null);
     setCopied(false);
 
-    try {
+    const uploadWithServer = async () => {
       const fd = new FormData();
       fd.append('file', file);
 
@@ -176,7 +176,51 @@ export default function HomePage() {
         xhr.onerror = () => reject(new Error('Network error'));
       });
       xhr.send(fd);
-      const data = await respPromise;
+      return respPromise;
+    };
+
+    const uploadWithS3 = async () => {
+      const prepareResp = await fetch('/api/upload-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+        }),
+      });
+      const data = await prepareResp.json().catch(() => null);
+      if (!prepareResp.ok) {
+        throw new Error(data?.error || 'Upload failed');
+      }
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', data.uploadUrl);
+      if (file.type) xhr.setRequestHeader('Content-Type', file.type);
+      xhr.upload.onprogress = (e) => {
+        if (e.lengthComputable) {
+          setProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      };
+      const uploadPromise = new Promise((resolve, reject) => {
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) resolve();
+          else reject(new Error('Upload failed'));
+        };
+        xhr.onerror = () => reject(new Error('Network error'));
+      });
+      xhr.send(file);
+      await uploadPromise;
+      return data;
+    };
+
+    try {
+      let data;
+      try {
+        data = await uploadWithS3();
+      } catch (e) {
+        data = await uploadWithServer();
+      }
       const fullUrl = `${window.location.origin}/api/file/${data.id}`;
       setResult({ ...data, fullUrl });
       toast.success('Uploaded. Link valid for 5 minutes.');

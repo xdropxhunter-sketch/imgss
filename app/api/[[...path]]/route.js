@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { getFilesCollection } from '@/lib/mongodb';
-import { saveFile, readFile, deleteFile, getBackend, getPresignedUrl } from '@/lib/storage';
+import { saveFile, readFile, deleteFile, getBackend, getPresignedUrl, getPresignedUploadUrl } from '@/lib/storage';
 import { startCleanupScheduler, runCleanup } from '@/lib/cleanup';
 
 export const dynamic = 'force-dynamic';
@@ -28,6 +28,21 @@ function json(data, init = {}) {
 function getExt(name) {
   const m = (name || '').toLowerCase().match(/\.([a-z0-9]+)$/);
   return m ? m[1] : '';
+}
+
+function validateFileMeta({ name, type, size }) {
+  if (size > MAX_UPLOAD_BYTES) {
+    return `File too large. Max is ${Math.floor(MAX_UPLOAD_BYTES / 1024 / 1024)}MB`;
+  }
+  if (size <= 0) {
+    return 'Empty file';
+  }
+  const mime = (type || '').toLowerCase();
+  const ext = getExt(name);
+  if (!ALLOWED_MIMES.has(mime) && !ALLOWED_EXT.has(ext)) {
+    return 'Unsupported file type. Allowed: PNG, JPG, JPEG, WEBP, MP4';
+  }
+  return null;
 }
 
 async function handleUpload(request) {
@@ -95,6 +110,62 @@ async function handleUpload(request) {
     mimeType: mime,
     size,
     originalName: file.name,
+  });
+}
+
+async function handleUploadUrl(request) {
+  if (getBackend() !== 's3') {
+    return json({ error: 'Direct upload is only available for S3 storage' }, { status: 400 });
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch (e) {
+    return json({ error: 'Invalid JSON body' }, { status: 400 });
+  }
+
+  const originalName = body?.name || 'file';
+  const mime = (body?.type || '').toLowerCase();
+  const size = Number(body?.size || 0);
+  const validationError = validateFileMeta({ name: originalName, type: mime, size });
+  if (validationError) {
+    return json({ error: validationError }, { status: validationError.startsWith('File too large') ? 413 : 400 });
+  }
+
+  const id = uuidv4().replace(/-/g, '').slice(0, 16);
+  const createdAt = new Date();
+  const expiresAt = new Date(createdAt.getTime() + FILE_EXPIRY_SECONDS * 1000);
+  const safeName = originalName.replace(/[^a-zA-Z0-9._-]/g, '_');
+  const storageKey = `tempshare/${id}-${safeName}`;
+  const uploadUrl = await getPresignedUploadUrl({
+    storageKey,
+    contentType: mime || 'application/octet-stream',
+    expiresIn: Math.min(FILE_EXPIRY_SECONDS, 300),
+  });
+
+  const col = await getFilesCollection();
+  await col.insertOne({
+    id,
+    originalName,
+    mimeType: mime,
+    size,
+    storageKey,
+    backend: getBackend(),
+    createdAt,
+    expiresAt,
+    deleted: false,
+  });
+
+  return json({
+    id,
+    uploadUrl,
+    shareUrl: `/share/${id}`,
+    expiresAt: expiresAt.toISOString(),
+    expiresInSeconds: FILE_EXPIRY_SECONDS,
+    mimeType: mime,
+    size,
+    originalName,
   });
 }
 
@@ -173,6 +244,7 @@ export async function POST(request, { params }) {
   const segments = params?.path || [];
   const [a] = segments;
   try {
+    if (a === 'upload-url') return handleUploadUrl(request);
     if (a === 'upload') return handleUpload(request);
     return json({ error: 'Not found' }, { status: 404 });
   } catch (e) {

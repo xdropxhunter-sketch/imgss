@@ -136,6 +136,118 @@ code {
     @apply border-border;
     }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    background-color: #e6e7ee;
+    background-image:
+      radial-gradient(rgba(255,255,255,0.6) 1px, transparent 1px),
+      radial-gradient(rgba(180,182,200,0.18) 1px, transparent 1px);
+    background-size: 4px 4px, 4px 4px;
+    background-position: 0 0, 2px 2px;
+    color: #4a4a52;
     }
+}
+
+@layer components {
+  /* Neumorphism design system */
+  .neu-bg {
+    background-color: #e6e7ee;
+  }
+
+  /* Raised (convex) surface */
+  .neu-raised {
+    background-color: #e6e7ee;
+    box-shadow:
+      -8px -8px 16px #ffffff,
+      8px 8px 16px rgba(174,174,192,0.45);
+  }
+  .neu-raised-sm {
+    background-color: #e6e7ee;
+    box-shadow:
+      -4px -4px 8px #ffffff,
+      4px 4px 8px rgba(174,174,192,0.5);
+  }
+
+  /* Inset (concave) surface */
+  .neu-inset {
+    background-color: #e6e7ee;
+    box-shadow:
+      inset 4px 4px 8px rgba(174,174,192,0.55),
+      inset -4px -4px 8px #ffffff;
+  }
+  .neu-inset-sm {
+    background-color: #e6e7ee;
+    box-shadow:
+      inset 2px 2px 4px rgba(174,174,192,0.6),
+      inset -2px -2px 4px #ffffff;
+  }
+
+  /* Pressable button */
+  .neu-btn {
+    background-color: #e6e7ee;
+    color: #4a4a52;
+    box-shadow:
+      -5px -5px 10px #ffffff,
+      5px 5px 10px rgba(174,174,192,0.5);
+    transition: box-shadow 120ms ease, transform 120ms ease, color 120ms ease;
+  }
+  .neu-btn:hover {
+    color: #5b8fc4;
+  }
+  .neu-btn:active,
+  .neu-btn[data-pressed="true"] {
+    box-shadow:
+      inset 3px 3px 6px rgba(174,174,192,0.6),
+      inset -3px -3px 6px #ffffff;
+  }
+  .neu-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Primary accent button (soft blue) */
+  .neu-btn-primary {
+    background: linear-gradient(145deg, #b8d4ec, #9ab8d4);
+    color: #2d4761;
+    box-shadow:
+      -5px -5px 10px #ffffff,
+      5px 5px 10px rgba(154,184,212,0.55);
+    transition: all 120ms ease;
+  }
+  .neu-btn-primary:hover {
+    background: linear-gradient(145deg, #c2dcf0, #a4c0d8);
+  }
+  .neu-btn-primary:active {
+    box-shadow:
+      inset 3px 3px 6px rgba(120,150,180,0.5),
+      inset -3px -3px 6px rgba(255,255,255,0.6);
+  }
+
+  /* Progress bar - segmented dashed style like reference */
+  .neu-progress-track {
+    background-color: #e6e7ee;
+    box-shadow:
+      inset 2px 2px 4px rgba(174,174,192,0.55),
+      inset -2px -2px 4px #ffffff;
+  }
+  .neu-progress-fill {
+    background: linear-gradient(90deg, #a8c5e0, #7da3c9);
+    box-shadow: 0 0 8px rgba(125,163,201,0.4);
+  }
+
+  /* Subtle text */
+  .neu-text-soft {
+    color: #8a8a96;
+  }
+  .neu-text-strong {
+    color: #3a3a44;
+  }
+
+  /* Dashed progress (segmented like the reference) */
+  .neu-progress-segments {
+    background-image: repeating-linear-gradient(
+      90deg,
+      #a8c5e0 0 6px,
+      transparent 6px 10px
+    );
+  }
 }

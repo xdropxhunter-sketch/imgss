@@ -87,3 +87,16 @@ node_modules/@next/swc-linux-arm64-musl/next-swc.linux-arm64-musl.node
 credentials.json
 *.key
 .credentials
+
+# Local test/debug scripts that may contain secrets
+aws_test.mjs
+aws_test.js
+*_test_local.mjs
+*_test_local.js
+test-*.mjs
+*.test-local.*
+
+# Env files (defensive — already covered above for .env)
+.env
+.env.local
+.env.*.local

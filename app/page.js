@@ -10,11 +10,9 @@ import {
   Check,
   Clock,
   Shield,
-  Zap,
   X,
   Link as LinkIcon,
   RefreshCw,
-  Search,
 } from 'lucide-react';
 
 const ALLOWED = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'video/mp4'];
@@ -271,15 +269,7 @@ export default function HomePage() {
     <div className="min-h-screen neu-bg">
       {/* Header */}
       <header className="container flex items-center justify-between py-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full neu-raised-sm">
-            <Zap className="h-5 w-5" style={{ color: '#7da3c9' }} />
-          </div>
-          <div>
-            <div className="text-lg font-semibold neu-text-strong tracking-tight">TempShare</div>
-            <div className="text-xs neu-text-soft">files that vanish in 5 minutes</div>
-          </div>
-        </div>
+        <div />
         <div className="hidden items-center gap-3 sm:flex">
           <div className="flex items-center gap-2 rounded-full neu-inset-sm px-3 py-1.5 text-xs neu-text-soft">
             <Shield className="h-3.5 w-3.5" /> No login
@@ -457,29 +447,42 @@ export default function HomePage() {
           </div>
         )}
 
-        {/* Feature row */}
-        <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <FeatureItem icon={<Clock className="h-5 w-5" />} title="5-minute expiry" desc="Links self-destruct after 5 minutes." />
-          <FeatureItem icon={<Shield className="h-5 w-5" />} title="No accounts" desc="No signup. No tracking. Just share." />
-          <FeatureItem icon={<Zap className="h-5 w-5" />} title="Drag & drop" desc="Up to 50MB. PNG, JPG, WEBP, MP4." />
-        </div>
+        <section className="mx-auto mt-24 max-w-2xl text-center sm:mt-28">
+          <h2 className="text-2xl font-black leading-tight text-[#111116] sm:text-3xl">
+            A simple way to share images when uploads are limited.
+          </h2>
+          <div className="mt-7 space-y-7 text-[13px] italic leading-6 text-[#34343b]">
+            <div>
+              <h3 className="text-xl font-black not-italic tracking-tight text-[#050507]">How it works</h3>
+              <p className="mt-2 font-semibold">
+                Upload an image, copy the direct file link, and paste it where you need it.
+                The link returns the image itself, not a login page or a hidden download flow,
+                so AI tools and browsers can read it cleanly while it is alive.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-black not-italic tracking-tight text-[#050507]">Benefits</h3>
+              <p className="mt-2 font-semibold">
+                It is fast, account-free, and built for short handoffs. Use it when an upload
+                limit gets in the way, when you need a temporary image link, or when you want
+                to avoid leaving files sitting around after the task is done.
+              </p>
+            </div>
+            <div>
+              <h3 className="text-xl font-black not-italic tracking-tight text-[#050507]">Downside</h3>
+              <p className="mt-2 font-semibold">
+                Anyone with the link can view the file until it expires. This is private by
+                obscurity and time limit, not by password. Do not upload secrets, IDs, or
+                anything you would not want another link holder to see.
+              </p>
+            </div>
+          </div>
+        </section>
       </main>
 
       <footer className="container pb-8 text-center text-xs neu-text-soft">
         Built with Next.js · Files auto-delete after 5 minutes
       </footer>
-    </div>
-  );
-}
-
-function FeatureItem({ icon, title, desc }) {
-  return (
-    <div className="rounded-2xl neu-raised-sm p-5">
-      <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full neu-inset-sm" style={{ color: '#7da3c9' }}>
-        {icon}
-      </div>
-      <div className="text-sm font-semibold neu-text-strong">{title}</div>
-      <div className="mt-1 text-xs neu-text-soft">{desc}</div>
     </div>
   );
 }

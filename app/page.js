@@ -219,7 +219,11 @@ export default function HomePage() {
       try {
         data = await uploadWithS3();
       } catch (e) {
-        data = await uploadWithServer();
+        if (e.message === 'Direct upload is only available for S3 storage') {
+          data = await uploadWithServer();
+        } else {
+          throw e;
+        }
       }
       const fullUrl = `${window.location.origin}/api/file/${data.id}`;
       setResult({ ...data, fullUrl });

@@ -1,0 +1,25 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm install
+        - printf "MONGO_URL=%s\n" "$MONGO_URL" >> .env.production
+        - printf "DB_NAME=%s\n" "$DB_NAME" >> .env.production
+        - printf "STORAGE_BACKEND=%s\n" "$STORAGE_BACKEND" >> .env.production
+        - printf "S3_ACCESS_KEY_ID=%s\n" "$S3_ACCESS_KEY_ID" >> .env.production
+        - printf "S3_SECRET_ACCESS_KEY=%s\n" "$S3_SECRET_ACCESS_KEY" >> .env.production
+        - printf "S3_REGION=%s\n" "$S3_REGION" >> .env.production
+        - printf "S3_BUCKET_NAME=%s\n" "$S3_BUCKET_NAME" >> .env.production
+        - printf "FILE_EXPIRY_SECONDS=%s\n" "$FILE_EXPIRY_SECONDS" >> .env.production
+        - printf "MAX_UPLOAD_BYTES=%s\n" "$MAX_UPLOAD_BYTES" >> .env.production
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - "**/*"
+  cache:
+    paths:
+      - node_modules/**/*

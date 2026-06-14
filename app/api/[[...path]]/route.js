@@ -201,19 +201,7 @@ async function handleServeFile(id) {
     return new Response('File expired', { status: 410 });
   }
 
-  // If S3 backend, redirect to presigned URL for efficiency
-  if (doc.backend === 's3') {
-    const remaining = Math.max(
-      30,
-      Math.floor((new Date(doc.expiresAt).getTime() - Date.now()) / 1000)
-    );
-    const url = await getPresignedUrl(doc.storageKey, remaining);
-    if (url) {
-      return NextResponse.redirect(url, 302);
-    }
-  }
-
-  // Local: stream from disk
+  // Stream bytes from storage instead of redirecting to S3 so external tools can inspect the URL.
   const buffer = await readFile(doc.storageKey);
   return new Response(buffer, {
     status: 200,
